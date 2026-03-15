@@ -10,7 +10,8 @@ import (
 
 func TestSpawnStatusTool_Name(t *testing.T) {
 	provider := &MockLLMProvider{}
-	manager := NewSubagentManager(provider, "test-model", "/tmp/test")
+	workspace := t.TempDir()
+	manager := NewSubagentManager(provider, "test-model", workspace)
 	tool := NewSpawnStatusTool(manager)
 
 	if tool.Name() != "spawn_status" {
@@ -20,7 +21,8 @@ func TestSpawnStatusTool_Name(t *testing.T) {
 
 func TestSpawnStatusTool_Description(t *testing.T) {
 	provider := &MockLLMProvider{}
-	manager := NewSubagentManager(provider, "test-model", "/tmp/test")
+	workspace := t.TempDir()
+	manager := NewSubagentManager(provider, "test-model", workspace)
 	tool := NewSpawnStatusTool(manager)
 
 	desc := tool.Description()
@@ -34,7 +36,8 @@ func TestSpawnStatusTool_Description(t *testing.T) {
 
 func TestSpawnStatusTool_Parameters(t *testing.T) {
 	provider := &MockLLMProvider{}
-	manager := NewSubagentManager(provider, "test-model", "/tmp/test")
+	workspace := t.TempDir()
+	manager := NewSubagentManager(provider, "test-model", workspace)
 	tool := NewSpawnStatusTool(manager)
 
 	params := tool.Parameters()
@@ -60,7 +63,8 @@ func TestSpawnStatusTool_NilManager(t *testing.T) {
 
 func TestSpawnStatusTool_Empty(t *testing.T) {
 	provider := &MockLLMProvider{}
-	manager := NewSubagentManager(provider, "test-model", "/tmp/test")
+	workspace := t.TempDir()
+	manager := NewSubagentManager(provider, "test-model", workspace)
 	tool := NewSpawnStatusTool(manager)
 
 	result := tool.Execute(context.Background(), map[string]any{})
