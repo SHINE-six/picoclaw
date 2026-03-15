@@ -29,8 +29,9 @@ func (t *SpawnStatusTool) Description() string {
 		"Returns a list of all subagents and their current state " +
 		"(running, completed, failed, or canceled), or retrieves details " +
 		"for a specific subagent task when task_id is provided. " +
-		"Results are scoped to the current conversation when a channel/chat " +
-		"context is available; without context (e.g. CLI), all tasks are listed."
+		"Results are scoped to the current conversation's channel and chat ID; " +
+		"all tasks are listed only when no channel/chat context is injected " +
+		"(e.g. direct programmatic calls via Execute)."
 }
 
 func (t *SpawnStatusTool) Parameters() map[string]any {
