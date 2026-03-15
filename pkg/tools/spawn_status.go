@@ -108,7 +108,7 @@ func (t *SpawnStatusTool) Execute(ctx context.Context, args map[string]any) *Too
 	}
 
 	if len(tasks) == 0 {
-		return NewToolResult("No subagents have been spawned yet.")
+		return NewToolResult("No subagents found for this conversation.")
 	}
 
 	// Order by creation time (ascending) so spawning order is preserved.

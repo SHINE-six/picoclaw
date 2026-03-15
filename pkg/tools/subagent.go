@@ -109,10 +109,6 @@ func (sm *SubagentManager) Spawn(
 }
 
 func (sm *SubagentManager) runTask(ctx context.Context, task *SubagentTask, callback AsyncCallback) {
-	sm.mu.Lock()
-	task.Status = "running"
-	sm.mu.Unlock()
-
 	// Build system prompt for subagent
 	systemPrompt := `You are a subagent. Complete the given task independently and report the result.
 You have access to tools - use them as needed to complete your task.
