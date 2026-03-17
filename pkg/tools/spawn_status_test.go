@@ -236,8 +236,9 @@ func TestSpawnStatusTool_ResultTruncation_Unicode(t *testing.T) {
 	provider := &MockLLMProvider{}
 	manager := NewSubagentManager(provider, "test-model", "/tmp/test")
 
-	// Each "字" is 3 bytes; 400 runes = 1200 bytes — well over the 300-rune limit.
-	longResult := strings.Repeat("字", 400)
+	// Each CJK rune is 3 bytes; 400 runes = 1200 bytes — well over the 300-rune limit.
+	cjkChar := string(rune(0x5b57))
+	longResult := strings.Repeat(cjkChar, 400)
 	manager.mu.Lock()
 	manager.tasks["subagent-1"] = &SubagentTask{
 		ID:     "subagent-1",
@@ -257,7 +258,7 @@ func TestSpawnStatusTool_ResultTruncation_Unicode(t *testing.T) {
 		t.Errorf("Expected truncation indicator in output")
 	}
 	// The truncated result must be valid UTF-8 (no split rune boundaries).
-	if !strings.Contains(result.ForLLM, "字") {
+	if !strings.Contains(result.ForLLM, cjkChar) {
 		t.Errorf("Expected CJK runes to appear intact in output")
 	}
 }
