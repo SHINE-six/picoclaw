@@ -11,6 +11,7 @@ import (
 
 	"github.com/sipeed/picoclaw/pkg/config"
 	anthropicmessages "github.com/sipeed/picoclaw/pkg/providers/anthropic_messages"
+	"github.com/sipeed/picoclaw/pkg/providers/azure"
 )
 
 // createClaudeAuthProvider creates a Claude provider using OAuth credentials from auth store.
@@ -54,8 +55,8 @@ func ExtractProtocol(model string) (protocol, modelID string) {
 
 // CreateProviderFromConfig creates a provider based on the ModelConfig.
 // It uses the protocol prefix in the Model field to determine which provider to create.
-// Supported protocols: openai, litellm, anthropic, anthropic-messages, antigravity,
-// claude-cli, codex-cli, github-copilot
+// Supported protocols: openai, litellm, novita, anthropic, anthropic-messages,
+// antigravity, claude-cli, codex-cli, github-copilot
 // Returns the provider, the model ID (without protocol prefix), and any error.
 func CreateProviderFromConfig(cfg *config.ModelConfig) (LLMProvider, string, error) {
 	if cfg == nil {
@@ -94,10 +95,28 @@ func CreateProviderFromConfig(cfg *config.ModelConfig) (LLMProvider, string, err
 			cfg.RequestTimeout,
 		), modelID, nil
 
+	case "azure", "azure-openai":
+		// Azure OpenAI uses deployment-based URLs, api-key header auth,
+		// and always sends max_completion_tokens.
+		if cfg.APIKey == "" {
+			return nil, "", fmt.Errorf("api_key is required for azure protocol")
+		}
+		if cfg.APIBase == "" {
+			return nil, "", fmt.Errorf(
+				"api_base is required for azure protocol (e.g., https://your-resource.openai.azure.com)",
+			)
+		}
+		return azure.NewProviderWithTimeout(
+			cfg.APIKey,
+			cfg.APIBase,
+			cfg.Proxy,
+			cfg.RequestTimeout,
+		), modelID, nil
+
 	case "litellm", "openrouter", "groq", "zhipu", "gemini", "nvidia",
 		"ollama", "moonshot", "shengsuanyun", "deepseek", "cerebras",
 		"vivgrid", "volcengine", "vllm", "qwen", "mistral", "avian",
-		"minimax", "longcat", "modelscope":
+		"minimax", "longcat", "modelscope", "novita":
 		// All other OpenAI-compatible HTTP providers
 		if cfg.APIKey == "" && cfg.APIBase == "" {
 			return nil, "", fmt.Errorf("api_key or api_base is required for HTTP-based protocol %q", protocol)
@@ -200,6 +219,8 @@ func getDefaultAPIBase(protocol string) string {
 		return "https://openrouter.ai/api/v1"
 	case "litellm":
 		return "http://localhost:4000/v1"
+	case "novita":
+		return "https://api.novita.ai/openai"
 	case "groq":
 		return "https://api.groq.com/openai/v1"
 	case "zhipu":
